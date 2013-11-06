@@ -28,13 +28,13 @@
 	<p>First, it's very important that these access keys are tied to an IAM account with limited access. Anyone you provide editor level access and above will be able to get the keys from the backend source, so you wouldn't want access to be any more then just the intended S3 bucket. To that end, here is a sample access policy:</p>
 	<pre>
 {
-  "Version": "<?php echo date('Y-m-d'); ?>",
+  "Version": "2012-10-17",
   "Statement": [
     {
       "Action": [
         "s3:ListBucket"
       ],
-      "Sid": "Stmt<?php echo rand(1000000000000,2000000000000) ?>",
+      "Sid": "Stmt<?php echo rand(1000000000,2000000000) ?>000",
       "Resource": [
         "arn:aws:s3:::<?php echo get_option( $this->plugin_slug . '-bucket', 'YOUR_BUCKET_NAME' ); ?>"
       ],
@@ -46,7 +46,7 @@
         "s3:PutObject",
         "s3:PutObjectAcl"
       ],
-      "Sid": "Stmt<?php echo rand(1000000000000,2000000000000) ?>",
+      "Sid": "Stmt<?php echo rand(1000000000,2000000000) ?>000",
       "Resource": [
         "arn:aws:s3:::<?php echo get_option( $this->plugin_slug . '-bucket', 'YOUR_BUCKET_NAME' ); ?>/<?php echo get_option($this->plugin_slug . '-bucket-prefix', ''); ?>*"
       ],

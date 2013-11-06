@@ -13,12 +13,12 @@
  */
 ?>
 <script type="text/javascript">
-	var s3BucketName = '<?php echo get_option($this->plugin_slug.'-bucket'); ?>';
-	var cloudFrontURL = '<?php echo get_option($this->plugin_slug.'-cloudfront-url'); ?>';
-	var bucket_prefix = '<?php echo get_option($this->plugin_slug.'-bucket-prefix'); ?>';
+	var s3BucketName = <?php echo json_encode(get_option($this->plugin_slug.'-bucket')); ?>;
+	var cloudFrontURL = <?php echo json_encode(get_option($this->plugin_slug.'-cloudfront-url')); ?>;
+	var bucket_prefix = <?php echo json_encode(get_option($this->plugin_slug.'-bucket-prefix')); ?>;
 	AWS.config.update({
-		accessKeyId: '<?php echo get_option($this->plugin_slug.'-access-key-id'); ?>', 
-		secretAccessKey: '<?php echo get_option($this->plugin_slug.'-secret-access-key'); ?>'
+		accessKeyId: <?php echo json_encode(get_option($this->plugin_slug.'-access-key-id')); ?>, 
+		secretAccessKey: <?php echo json_encode(get_option($this->plugin_slug.'-secret-access-key')); ?>
 	});
 	var bucket = new AWS.S3({
 		params: {Bucket: s3BucketName},

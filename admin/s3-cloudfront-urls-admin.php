@@ -235,8 +235,8 @@ class S3_CloudFront_URLs_Admin {
 
 	    register_setting( 
 	    	$this->plugin_slug, 
-	    	$this->plugin_slug . "-access-key-id"
-	    	// '$sanitize_callback'
+	    	$this->plugin_slug . "-access-key-id",
+	    	array($this, 'sanitize_key')
 	    );
 
 	    add_settings_field( 
@@ -252,8 +252,8 @@ class S3_CloudFront_URLs_Admin {
 
 	    register_setting( 
 	    	$this->plugin_slug, 
-	    	$this->plugin_slug . '-secret-access-key'
-	    	// '$sanitize_callback'
+	    	$this->plugin_slug . '-secret-access-key',
+	    	array($this, 'sanitize_secret')
 	    );
 
 	    add_settings_field( 
@@ -269,8 +269,8 @@ class S3_CloudFront_URLs_Admin {
 
 	    register_setting( 
 	    	$this->plugin_slug, 
-	    	$this->plugin_slug . '-bucket'
-	    	// '$sanitize_callback'
+	    	$this->plugin_slug . '-bucket',
+	    	array($this, 'sanitize_bucket_name')
 	    );
 
 	    add_settings_field( 
@@ -287,8 +287,8 @@ class S3_CloudFront_URLs_Admin {
 
 	    register_setting( 
 	    	$this->plugin_slug, 
-	    	$this->plugin_slug . "-bucket-prefix"
-	    	// '$sanitize_callback'
+	    	$this->plugin_slug . "-bucket-prefix",
+	    	array($this, 'sanitize_url')
 	    );
 
 	    add_settings_section(  
@@ -312,8 +312,8 @@ class S3_CloudFront_URLs_Admin {
 
 	    register_setting( 
 	    	$this->plugin_slug, 
-	    	$this->plugin_slug . "-cloudfront-url"
-	    	// '$sanitize_callback'
+	    	$this->plugin_slug . "-cloudfront-url",
+	    	array($this, 'sanitize_url')
 	    );
 
 
@@ -334,6 +334,28 @@ class S3_CloudFront_URLs_Admin {
 		if (array_key_exists('hint', $args)) {
 			echo " <em>" . htmlspecialchars($args['hint']);
 		}
+	}
+
+	public function sanitize_bucket_name($value) {
+		// uppercase letters, lowercase letters, numbers, periods (.), dashes (-) and underscores (_)
+		$value = preg_replace('/[^A-Za-z0-9.+-]/', '', $value);
+		return($value);
+	}
+
+	public function sanitize_key($value) {
+		// uppercase letters, lowercase letters, numbers
+		$value = preg_replace('/[^A-Za-z0-9]/', '', $value);
+		return($value);
+	}
+
+	public function sanitize_secret($value) {
+		$value = preg_replace('/[^A-Za-z0-9+\/]/', '', $value);
+		return($value);
+	}
+
+	public function sanitize_url($value) {
+		$value = filter_var($value, FILTER_SANITIZE_URL);
+		return($value);
 	}
 
 	/**
