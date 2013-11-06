@@ -56,5 +56,16 @@
 }		
 	</pre>
 	<p>Additionally, you'll need to adjust the CORS settings on your bucket to allow the types of requests necessary. Here is a sample CORS xml file:</p>
-
+  <pre>
+<?xml version="1.0" encoding="UTF-8"?>
+<CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+    <CORSRule>
+        <AllowedOrigin>*</AllowedOrigin>
+        <AllowedMethod>GET</AllowedMethod>
+        <AllowedMethod>PUT</AllowedMethod>
+        <AllowedMethod>POST</AllowedMethod>
+        <AllowedHeader>*</AllowedHeader>
+    </CORSRule>
+</CORSConfiguration>
+  </pre>
 </div>
