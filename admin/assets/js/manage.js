@@ -1,22 +1,34 @@
 (function ( $ ) {
 	"use strict";
 
+	AWS.config.update({
+		accessKeyId: s3_cloudfront_settings.accessKeyId,
+		secretAccessKey: s3_cloudfront_settings.secretAccessKey
+	});
+	var bucket = new AWS.S3({
+		params: {Bucket: s3_cloudfront_settings.s3BucketName},
+	});
+	var filenames = [];
+
 	function listObjs() {
 
-		bucket.listObjects({Prefix: bucket_prefix }, function(error,data) {
+		bucket.listObjects({Prefix: s3_cloudfront_settings.bucket_prefix }, function(error,data) {
 			$('#the-list').html('');
 			if (error === null) {
 				jQuery.each(data.Contents, function(index, obj) {
-					if (obj.Key !== bucket_prefix ) {
-						var filename = obj.Key.replace(bucket_prefix, '');
+					if (obj.Key !== s3_cloudfront_settings.bucket_prefix ) {
+						var filename = obj.Key.replace(s3_cloudfront_settings.bucket_prefix, '');
 						filenames.push(filename);
-						var link = cloudFrontURL + "/" + obj.Key;
+						var link = s3_cloudfront_settings.cloudFrontURL + "/" + obj.Key;
 						var row = $('<tr></tr>');
 						if (index%2 === 0) {
 							row.addClass('alternate');
 						}
 						row.append('<td>'+filename+'</td>');
 						row.append('<td><a href="'+link+'" target="_blank">'+link+'</td>');
+						if (s3_cloudfront_settings.qs_setup) {
+							row.append( $('<td></td>').append($("<button class='get_hits'>Get Downloads</button>").attr('value',obj.Key)) );
+						}
 						$('#the-list').append(row);
 					}
 				});
@@ -45,7 +57,7 @@
 				$(this).find(":submit").prop('disabled','disabled').html('<em>Uploading</em>');
 				bucket.putObject(
 					{
-						Key: bucket_prefix + file.name,
+						Key: s3_cloudfront_settings.bucket_prefix + file.name,
 						ContentType: file.type,
 						Body: file,
 						ACL: "public-read"
@@ -64,6 +76,28 @@
 				);
 			}
 			return(false);
+		});
+
+		$('body').delegate("button.get_hits", "click", function(){
+			var filename = $(this).attr('value');
+			$(this).prop('disabled','disabled');
+			var hits = jQuery.post(
+				s3_cloudfront_settings.ajax_url,
+				{
+					action: 'qloudstat_numbers',
+					filename: filename,
+					// send the nonce along with the request
+					qs_nonce: s3_cloudfront_settings.qs_nonce,
+				},
+				function(response){
+					console.log(response);
+					if (response['hits'] !== undefined) {
+						$('button[value="'+response['filename']+'"]').replaceWith('<p>'+response['hits']+'</p>');
+					} else {
+						alert('Error getting hits.');
+					}
+				}
+			);
 		});
 
 	});

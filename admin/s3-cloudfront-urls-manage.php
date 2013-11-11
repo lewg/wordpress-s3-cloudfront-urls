@@ -71,15 +71,6 @@ class S3_CloudFront_URLs_Manage {
 		$plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_slug . '.php' );
 		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 
-		/*
-		 * Define custom functionality.
-		 *
-		 * Read more about actions and filters:
-		 * http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
-		 */
-		add_action( 'TODO', array( $this, 'action_method_name' ) );
-		add_filter( 'TODO', array( $this, 'filter_method_name' ) );
-
 	}
 
 	/**
@@ -145,6 +136,21 @@ class S3_CloudFront_URLs_Manage {
 			// Add AWS SDK
 			wp_enqueue_script( $this->plugin_slug . '-aws-sdk', 'https://sdk.amazonaws.com/js/aws-sdk-2.0.0-rc1.min.js', null, '2.0.0-rc1');
 			wp_enqueue_script( $this->plugin_slug . '-manage-script', plugins_url( 'assets/js/manage.js', __FILE__ ), array( 'jquery' ), S3_CloudFront_URLs::VERSION );
+
+			// in javascript, object properties are accessed as s3_cloudfront_settings.ajax_url, etc
+			wp_localize_script( $this->plugin_slug . '-manage-script', 's3_cloudfront_settings',
+            	array( 
+            		's3BucketName' => get_option($this->plugin_slug.'-bucket'), 
+            		'cloudFrontURL' => get_option($this->plugin_slug.'-cloudfront-url'),
+            		'bucket_prefix' => get_option($this->plugin_slug.'-bucket-prefix'),
+            		'accessKeyId' => get_option($this->plugin_slug.'-access-key-id'),
+            		'secretAccessKey' => get_option($this->plugin_slug.'-secret-access-key'),
+            		'ajax_url' => admin_url('admin-ajax.php'),
+            		'qs_nonce' => wp_create_nonce( $this->plugin_slug.'-qs-nonce' ),
+            		'qs_setup' => $this->is_qloudstat_setup()
+            	) 
+            );
+
 		}
 
 	}
@@ -191,31 +197,16 @@ class S3_CloudFront_URLs_Manage {
 		include_once( 'views/manage.php' );
 	}
 
-
-	/**
-	 * NOTE:     Actions are points in the execution of a page or process
-	 *           lifecycle that WordPress fires.
-	 *
-	 *           Actions:    http://codex.wordpress.org/Plugin_API#Actions
-	 *           Reference:  http://codex.wordpress.org/Plugin_API/Action_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	public function action_method_name() {
-		// TODO: Define your action hook callback here
-	}
-
-	/**
-	 * NOTE:     Filters are points of execution in which WordPress modifies data
-	 *           before saving it or sending it to the browser.
-	 *
-	 *           Filters: http://codex.wordpress.org/Plugin_API#Filters
-	 *           Reference:  http://codex.wordpress.org/Plugin_API/Filter_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	public function filter_method_name() {
-		// TODO: Define your filter hook callback here
+	// Simple check for Qloudstat setup
+	private function is_qloudstat_setup() {
+		$has_api = stristr(get_option($this->plugin_slug.'-qloudstat-api-url'), 'api.qloudstat.com');
+		$has_key = strlen(get_option($this->plugin_slug.'-qloudstat-api-key')) > 0;
+		$has_secret = strlen(get_option($this->plugin_slug.'-qloudstat-api-secret')) > 0;
+		if ($has_api && $has_key && $has_secret) {
+			return(true);
+		} else {
+			return(false);
+		}
 	}
 
 }

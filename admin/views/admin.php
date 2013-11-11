@@ -13,7 +13,7 @@
  */
 ?>
 
-<div class="wrap">
+<div class="wrap s3-cloudfront-admin">
 
 	<?php screen_icon(); ?>
 	<h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
@@ -56,8 +56,8 @@
 }		
 	</pre>
 	<p>Additionally, you'll need to adjust the CORS settings on your bucket to allow the types of requests necessary. Here is a sample CORS xml file:</p>
-  <pre>
-<?xml version="1.0" encoding="UTF-8"?>
+  <pre class="">
+<?php echo htmlspecialchars('<?xml version="1.0" encoding="UTF-8"?>
 <CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
     <CORSRule>
         <AllowedOrigin>*</AllowedOrigin>
@@ -66,6 +66,6 @@
         <AllowedMethod>POST</AllowedMethod>
         <AllowedHeader>*</AllowedHeader>
     </CORSRule>
-</CORSConfiguration>
+</CORSConfiguration>'); ?>
   </pre>
 </div>

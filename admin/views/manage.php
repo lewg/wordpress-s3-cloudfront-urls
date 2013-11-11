@@ -12,19 +12,6 @@
  * @copyright 2013 Lew Goettner
  */
 ?>
-<script type="text/javascript">
-	var s3BucketName = <?php echo json_encode(get_option($this->plugin_slug.'-bucket')); ?>;
-	var cloudFrontURL = <?php echo json_encode(get_option($this->plugin_slug.'-cloudfront-url')); ?>;
-	var bucket_prefix = <?php echo json_encode(get_option($this->plugin_slug.'-bucket-prefix')); ?>;
-	AWS.config.update({
-		accessKeyId: <?php echo json_encode(get_option($this->plugin_slug.'-access-key-id')); ?>, 
-		secretAccessKey: <?php echo json_encode(get_option($this->plugin_slug.'-secret-access-key')); ?>
-	});
-	var bucket = new AWS.S3({
-		params: {Bucket: s3BucketName},
-	});
-	var filenames = [];
-</script>
 <div class="wrap">
 
 	<?php screen_icon('upload'); ?>
@@ -51,6 +38,9 @@
 			<th scope="col" class="manage-column column-title">				
 				<span>CloudFront URL</span>
 			</th>
+			<th scope="col" width="110" class="manage-column column-title">
+				<span>Downloads</span>
+			</th>
 		</thead>
 
 		<tfoot>
@@ -60,6 +50,9 @@
 			</th>
 			<th scope="col" class="manage-column column-title">				
 				<span>CloudFront URL</span>
+			</th>
+			<th scope="col" class="manage-column column-title">
+				<span>Downloads</span>
 			</th>
 		</tr>
 		</tfoot>

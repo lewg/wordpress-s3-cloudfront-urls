@@ -52,14 +52,17 @@ add_action( 'plugins_loaded', array( 'S3_CloudFront_URLs', 'get_instance' ) );
  *----------------------------------------------------------------------------*/
 
 /*
- * If you want to include Ajax within the dashboard, change the following
- * conditional to:
+ * AJAX Calls
  *
- * if ( is_admin() ) {
- *   ...
- * }
- *
+ */
+ if ( is_admin() && ( defined( 'DOING_AJAX' ) || DOING_AJAX )) {
+   require_once( plugin_dir_path( __FILE__ ) . '/admin/s3-cloudfront-urls-ajax.php');
+   add_action( 'plugins_loaded', array( 'S3_CloudFront_URLs_AJAX', 'get_instance' ) );
+ }
+
+/*
  * The code below is intended to to give the lightest footprint possible.
+ *
  */
 if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
 

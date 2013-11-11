@@ -119,6 +119,7 @@ class S3_CloudFront_URLs_Admin {
 
 		$screen = get_current_screen();
 		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
+			wp_enqueue_style( 'jquery-ui-datepicker', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css' );
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), S3_CloudFront_URLs::VERSION );
 		}
 
@@ -143,6 +144,7 @@ class S3_CloudFront_URLs_Admin {
 
 		$screen = get_current_screen();
 		if ( $this->plugin_screen_hook_suffix == $screen->id ) {
+			wp_enqueue_script( 'jquery-ui-datepicker' );
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), S3_CloudFront_URLs::VERSION );
 		}
 
@@ -218,7 +220,7 @@ class S3_CloudFront_URLs_Admin {
 	    add_settings_section(  
 	        's3_settings_section',         	// ID used to identify this section and with which to register options  
 	        'S3 Settings',                  // Title to be displayed on the administration page  
-	        's3_settings_section_callback', // Callback used to render the description of the section  
+	        array($this,'s3_settings_section_callback'), // Callback used to render the description of the section  
 	        $this->plugin_slug             	// Page on which to add this section of options  
 	    );  
 
@@ -294,7 +296,7 @@ class S3_CloudFront_URLs_Admin {
 	    add_settings_section(  
 	        'cloudfront_settings_section',         	// ID used to identify this section and with which to register options  
 	        'CloudFront Settings',                  // Title to be displayed on the administration page  
-	        'cloudfront_settings_section_callback', // Callback used to render the description of the section  
+	        array($this, 'cloudfront_settings_section_callback'), // Callback used to render the description of the section  
 	        $this->plugin_slug             	// Page on which to add this section of options  
 	    );  
 
@@ -316,6 +318,85 @@ class S3_CloudFront_URLs_Admin {
 	    	array($this, 'sanitize_url')
 	    );
 
+	    /// Qloudstat Settings
+	    add_settings_section(  
+	        'qloudstat_settings_section',         	// ID used to identify this section and with which to register options  
+	        'Qloudstat Settings',                  // Title to be displayed on the administration page  
+	        array($this,'qloudstat_settings_section_callback'), // Callback used to render the description of the section  
+	        $this->plugin_slug             	// Page on which to add this section of options  
+	    );  
+
+	    add_settings_field( 
+	    	$this->plugin_slug . "-qloudstat-api-url", 
+	    	'CloudFront Base URL', 
+	    	array($this, 'setting_string_callback'),
+	    	$this->plugin_slug,
+	    	'qloudstat_settings_section',
+	    	array(
+	    		'field' => $this->plugin_slug . '-qloudstat-api-url',
+	    		'hint' => 'Something like: https://api.qloudstat.com/v11/{endpoint}'
+	    	)
+	    );
+
+	    register_setting( 
+	    	$this->plugin_slug, 
+	    	$this->plugin_slug . "-qloudstat-api-url",
+	    	array($this, 'sanitize_url')
+	    );
+
+	    add_settings_field( 
+	    	$this->plugin_slug . "-qloudstat-api-key", 
+	    	'API Key', 
+	    	array($this, 'setting_string_callback'),
+	    	$this->plugin_slug,
+	    	'qloudstat_settings_section',
+	    	array(
+	    		'field' => $this->plugin_slug . '-qloudstat-api-key',
+	    	)
+	    );
+
+	    register_setting( 
+	    	$this->plugin_slug, 
+	    	$this->plugin_slug . "-qloudstat-api-key",
+	    	array($this, 'sanitize_key')
+	    );
+
+	    add_settings_field( 
+	    	$this->plugin_slug . "-qloudstat-api-secret", 
+	    	'API Secret', 
+	    	array($this, 'setting_string_callback'),
+	    	$this->plugin_slug,
+	    	'qloudstat_settings_section',
+	    	array(
+	    		'field' => $this->plugin_slug . '-qloudstat-api-secret',
+	    	)
+	    );
+
+	    register_setting( 
+	    	$this->plugin_slug, 
+	    	$this->plugin_slug . '-qloudstat-api-secret',
+	    	array($this, 'sanitize_secret')
+	    );
+
+	    add_settings_field( 
+	    	$this->plugin_slug . "-qloudstat-start-date", 
+	    	'Start Date', 
+	    	array($this, 'setting_date_callback'),
+	    	$this->plugin_slug,
+	    	'qloudstat_settings_section',
+	    	array(
+	    		'field' => $this->plugin_slug . '-qloudstat-start-date',
+	    		'hint' => 'The date from which to start counting hits. (01/01/2013)'
+	    	)
+	    );
+
+	    register_setting( 
+	    	$this->plugin_slug, 
+	    	$this->plugin_slug . '-qloudstat-start-date',
+	    	array($this, 'sanitize_date')
+	    );
+
+
 
 	}
 
@@ -327,10 +408,24 @@ class S3_CloudFront_URLs_Admin {
 		echo 'Settings for your CloudFront distribution.';
 	}
 
+	public function qloudstat_settings_section_callback() {
+		echo 'Settings for your Qloudstat account. <em>(optional)</em>';
+	}
+
 	public function setting_string_callback($args) {
 		$field = esc_attr($args['field']);
 		$setting = esc_attr( get_option( $args['field'] ) );
 		echo "<input type='text' name='$field' value='$setting' />";
+		if (array_key_exists('hint', $args)) {
+			echo " <em>" . htmlspecialchars($args['hint']);
+		}
+	}
+
+	public function setting_date_callback($args) {
+		$field = esc_attr($args['field']);
+		$date = new DateTime(get_option( $args['field'] ));
+		$setting = $date->format('m/d/Y');
+		echo "<input class='datepicker' type='text' name='$field' value='$setting' />";
 		if (array_key_exists('hint', $args)) {
 			echo " <em>" . htmlspecialchars($args['hint']);
 		}
@@ -356,6 +451,14 @@ class S3_CloudFront_URLs_Admin {
 	public function sanitize_url($value) {
 		$value = filter_var($value, FILTER_SANITIZE_URL);
 		return($value);
+	}
+
+	public function sanitize_date($date_string) {
+		if ($date = DateTime::createFromFormat('m/d/Y', $date_string)) {
+			return($date->format('Y-m-d'));
+		} else {
+			return('2013-01-01');
+		}
 	}
 
 	/**
