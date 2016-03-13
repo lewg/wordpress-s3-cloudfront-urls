@@ -110,7 +110,7 @@ class S3_CloudFront_URLs_AJAX {
 
 	    try {
 
-	        $ch = curl_init();	    
+	        $ch = curl_init();
 	        curl_setopt($ch, CURLOPT_URL, $url);
 	        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type:application/json') );
 	        curl_setopt($ch, CURLOPT_USERAGENT, "curl/7.43.0");
@@ -121,11 +121,11 @@ class S3_CloudFront_URLs_AJAX {
 	        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	        curl_setopt($ch, CURLOPT_UNRESTRICTED_AUTH, true);
 	        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		    	$resp = curl_exec($ch);
+	        $resp = curl_exec($ch);
 
-          // validate CURL status
-          if(curl_errno($ch))
-              throw new Exception(curl_error($ch), 500);
+	        // validate CURL status
+	        if(curl_errno($ch))
+	            throw new Exception(curl_error($ch), 500);
 
           // validate HTTP status code (user/password credential issues)
           $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
