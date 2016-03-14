@@ -104,9 +104,9 @@ class S3_CloudFront_URLs_AJAX {
 	//	$url .= '&from=' . get_option($this->plugin_slug.'-qloudstat-start-date');
  
 		$url = $api_url;
-		$url .= '/uri/hits?graph=values';
+		$url .= '/uri,status/hits?graph=values';
 		$url .= '&from=' . get_option($this->plugin_slug.'-qloudstat-start-date');
-		$url .= '&operand=equals,equals&filter=/'.urlencode("$filename"); //.",\&limit=10000";
+		$url .= '&operand=equals,equals&filter=/'.urlencode("$filename,200").",&limit=10000";
 
 	    try {
 
@@ -137,9 +137,7 @@ class S3_CloudFront_URLs_AJAX {
    
           $hits = 0;
           if (isset($response->table->rows) && ( count($response->table->rows) > 0 ) ) {
- //           $hits = $response->table->rows[0]->c[2]->v;
-              $hits = $response->table->rows[0]->c[1]->f;
-
+	            $hits = $response->table->rows[0]->c[2]->v;
           }
 
           // Check for the value
