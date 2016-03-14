@@ -104,7 +104,7 @@ class S3_CloudFront_URLs_AJAX {
 	//	$url .= '&from=' . get_option($this->plugin_slug.'-qloudstat-start-date');
  
 		$url = $api_url;
-		$url .= '/uri,status/hits?graph=values';
+		$url .= '/uri,statuscode/hits?graph=values';
 		$url .= '&from=' . get_option($this->plugin_slug.'-qloudstat-start-date');
 		$url .= '&operand=equals,equals&filter=/'.urlencode("$filename,200").",&limit=10000";
 
