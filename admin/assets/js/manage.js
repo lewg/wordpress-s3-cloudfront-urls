@@ -29,7 +29,14 @@
 						if (s3_cloudfront_settings.qs_setup) {
 							row.append( $('<td></td>').append($("<button class='get_hits'>Get Downloads</button>").attr('value',obj.Key)) );
 						}
-						$('#the-list').append(row);
+
+            // Order the output to put the most recent links first
+            if (filename.beginsWith('201')) {
+              $('#the-list').prepend(row);
+            }else{
+              $('#the-list').append(row);
+            }
+
 					}
 				});
 			} else {

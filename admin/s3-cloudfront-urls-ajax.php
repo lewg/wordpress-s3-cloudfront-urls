@@ -97,21 +97,29 @@ class S3_CloudFront_URLs_AJAX {
 		// POST Values
 		$filename = $_POST['filename'];
 
-		// Setup a call for 200s, filtered to the filename
+	// Setup a call for 200s, filtered to the filename
+	//	$url = $api_url;
+	//	$url .= '/uri,statuscode/hits/values';
+	//	$url .= '?filter=' . urlencode("$filename,200");
+	//	$url .= '&from=' . get_option($this->plugin_slug.'-qloudstat-start-date');
+ 
 		$url = $api_url;
-		$url .= '/uri,statuscode/hits/values';
-		$url .= '?filter=' . urlencode("$filename,200");
+		$url .= '/uri,statuscode/hits?graph=values';
 		$url .= '&from=' . get_option($this->plugin_slug.'-qloudstat-start-date');
+		$url .= '&operand=equals,equals&filter=/'.urlencode("$filename,200").",&limit=10000";
 
 	    try {
 
 	        $ch = curl_init();
 	        curl_setopt($ch, CURLOPT_URL, $url);
-	        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+	        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/json', 'Content-Type:application/json') );
+	        curl_setopt($ch, CURLOPT_USERAGENT, "curl/7.43.0");
+	        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
 	        curl_setopt($ch, CURLOPT_USERPWD, $qs_key . ":" . $qs_secret);
 	        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+	        curl_setopt($ch, CURLOPT_UNRESTRICTED_AUTH, true);
 	        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 	        $resp = curl_exec($ch);
 
@@ -119,24 +127,25 @@ class S3_CloudFront_URLs_AJAX {
 	        if(curl_errno($ch))
 	            throw new Exception(curl_error($ch), 500);
 
-	        // validate HTTP status code (user/password credential issues)
-	        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	        if ($status_code != 200)
-	            throw new Exception("Response with Status Code [" . $status_code . "].", 500);
+          // validate HTTP status code (user/password credential issues)
+          $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-	        $response = json_decode($resp);
+          if ($status_code != 200)
+              throw new Exception("Response with Status Code [" . $status_code . "].", 500);
 
-	        $hits = 0;
-	        if (isset($response->table->rows) && ( count($response->table->rows) > 0 ) ) {
-	        	$hits = $response->table->rows[0]->c[2]->v;
-	        }
+          $response = json_decode($resp);
+   
+          $hits = 0;
+          if (isset($response->table->rows) && ( count($response->table->rows) > 0 ) ) {
+	            $hits = $response->table->rows[0]->c[2]->v;
+          }
 
-	        // Check for the value
-	        // $hits = $response->table->rows->2
+          // Check for the value
+          // $hits = $response->table->rows->2
 
-	        header( "Content-Type: application/json" );
-	        echo json_encode(array('hits' => $hits, 'filename' => $filename));
-	        exit();
+          header( "Content-Type: application/json" );
+          echo json_encode(array('hits' => $hits, 'filename' => $filename));
+          exit();
 
 	    }
 	    catch(Exception $ex) {
@@ -146,6 +155,5 @@ class S3_CloudFront_URLs_AJAX {
 
 	}
 
+} //end Class
 
-
-}
